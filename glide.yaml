@@ -1,0 +1,14 @@
+package: git.tmaws.io/prometheus/ganalytics-prom
+import:
+- package: github.com/prometheus/client_golang
+  version: ^0.8.0
+  subpackages:
+  - prometheus
+  - prometheus/promhttp
+- package: golang.org/x/oauth2
+  subpackages:
+  - jwt
+- package: google.golang.org/api
+  subpackages:
+  - analytics/v3
+- package: gopkg.in/yaml.v2

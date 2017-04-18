@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/paha/googleanalytics_exporter.svg?branch=master)](https://travis-ci.org/paha/googleanalytics_exporter)
+[![Go Report Card](https://goreportcard.com/badge/github.com/paha/googleanalytics_exporter)](https://goreportcard.com/report/github.com/paha/googleanalytics_exporter)
+
 # Google Real Time Analytics to Prometheus
 
 Obtains Google Analytics RealTime metrics, and presents them to prometheus for scraping.

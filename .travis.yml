@@ -21,10 +21,12 @@ script:
   - CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -installsuffix cgo ganalytics.go
 
 after_success:
-  - test -n $TRAVIS_TAG \
-    && docker build -t $REPO:latest -t $REPO:$TRAVIS_TAG . \
-    && docker login -u $DOCKER_USER -p $DOCKER_PASS quay.io \
-    && docker push $REPO:latest
+  - |
+    if [[ ! -z "$TRAVIS_TAG" ]]; then
+      docker build --tag "$REPO":latest --tag "$REPO":"$TRAVIS_TAG" .
+      docker login --username "$DOCKER_USER" --password "$DOCKER_PASS" quay.io
+      docker push "$REPO":"$TRAVIS_TAG"
+    fi
 
 branches:
   only:

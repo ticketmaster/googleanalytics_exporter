@@ -1,4 +1,4 @@
-package: git.tmaws.io/prometheus/ganalytics-prom
+package: github.com/paha/googleanalytics_exporter
 import:
 - package: github.com/prometheus/client_golang
   version: ^0.8.0

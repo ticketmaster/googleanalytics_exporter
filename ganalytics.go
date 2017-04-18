@@ -26,7 +26,6 @@ var (
 	conffile  = "./config/conf.yaml"
 	promGauge = make(map[string]prometheus.Gauge)
 	config    = new(conf)
-	creds     = getCreds(credsfile)
 )
 
 // conf defines configuration parameters
@@ -40,6 +39,7 @@ type conf struct {
 func init() {
 	config.getConf(conffile)
 
+	// All metrics are registered as Prometheus Gauge
 	for _, metric := range config.Metrics {
 		promGauge[metric] = prometheus.NewGauge(prometheus.GaugeOpts{
 			Name:        fmt.Sprintf("ga_%s", strings.Replace(metric, ":", "_", 1)),
@@ -52,6 +52,8 @@ func init() {
 }
 
 func main() {
+	creds := getCreds(credsfile)
+
 	// JSON web token configuration
 	jwtc := jwt.Config{
 		Email:        creds["client_email"],
@@ -80,6 +82,7 @@ func main() {
 			// Go routine per mertic
 			go func(metric string) {
 				val := getMetric(rts, metric)
+				// Gauge value to float64
 				valf, _ := strconv.ParseFloat(val, 64)
 				promGauge[metric].Set(valf)
 			}(metric)
@@ -89,12 +92,13 @@ func main() {
 }
 
 // getMetric queries GA RealTime API for a specific metric.
-func getMetric(rts *analytics.DataRealtimeService, metric string) (value string) {
+func getMetric(rts *analytics.DataRealtimeService, metric string) string {
 	getc := rts.Get(config.ViewID, metric)
 	m, err := getc.Do()
 	if err != nil {
 		panic(err)
 	}
+
 	return m.Rows[0][0]
 }
 
@@ -104,8 +108,7 @@ func (c *conf) getConf(filename string) {
 	if err != nil {
 		panic(err)
 	}
-	err = yaml.Unmarshal(data, &c)
-	if err != nil {
+	if err = yaml.Unmarshal(data, &c); err != nil {
 		panic(err)
 	}
 }
@@ -118,9 +121,9 @@ func getCreds(filename string) (r map[string]string) {
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(data, &r)
-	if err != nil {
+	if err = json.Unmarshal(data, &r); err != nil {
 		panic(err)
 	}
+
 	return r
 }

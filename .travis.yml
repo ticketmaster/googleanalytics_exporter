@@ -2,13 +2,15 @@ language: go
 env:
   global:
     - GO111MODULE=on
+    - CGO_ENABLED=0
+    - GOOS=linux
     - REPO=quay.io/paha/ga-prom
     - secure: "Y2MaX2kt7++lhRyA+6wmXbiO1Zivci/6Ntl+RC+0aSvndolpbo1Jsi4xgab2Y+MCu43gikSU3QliDGZYsLLU2YeZCzI5gC+e1O3rJyC07QC+cSH4G3wNkoZ3/W/jwCvtpoXvLTTtZHVlGJlrHWrQTlOddiJRnMRESANHvMQ67I9FORtvoCWnLxysw8ICq1L6c+KDDqZAavWHmVEXk5Mj7tT5EKMAwu8akrHWdNgOUZWHNbZexHRoaIRc9usau9AnH+XwazDpEl0NXrL1RQY/6fmCiT+33rquyGD9jggAO4I5ekoB4oMmnhYIHw+ofLCbA51LbQkicSi82Hd+/YJPyCi/vo/gzyF011YGtabrEDKKnTGIc1XluEDQLLCR7Qo96nPBXtm7w1CJQMW7o3bWrCyAXnXkjTTTJIs406uFtSQsHUAF6+lZSsbJfT/UIezi6vJjSK3gBv/7YKljm85mYqtYFd/Eypwx3rR0nToyYcqgO8SZsdPh0bzZ8YJg43r9iKckpOlGSFXhBnybt6lPzJJ8DkNK97zcSNNmUnbRRcJ29TrhSVYOsFwO+ZBqKtSnhuZkjYviFu4vKWTHwW14hnvxXLKjd8/xgTkYis2l652uCyVj2k+xBjSj/ykwhoZqgb5n11WuCMAmO8cyJY+Hp1nE8iCPBMGKDQaeVcWSuAM=" # DOCKER_USER
     - secure: "kCZemaLfMm/8ZocOpUhQXcw6KXjQ8qOk+svBVlPK71C4ZO/afFzVSOPtWgIPDoINqoL4ivRHYaQU8MMjrKPu/vgvCGnmbjJ0DJPgK/wjlmDjKMPpMQJV7NYHiWEoiGQl6izMIM0aQfyNBVY94co9fk1otkZn9r5L7CEo18jHdrEu5a7/SrYXE1Qb7Nt7/Tg4XinUmnY5HboSLXOhleFTO4nKWJokunqcei92h1aD4bUazKx2Vr/NWrq5VQ8t3KnEkTHCiwb2aCOirQCgP1OU9hhDuII795xNfV9VXIyatVVVr6dm2qS1XeS2WVHX9zQmnHyNsJ0K6eUHLOI5aNii/ePhxHLIaBhuo7DiWyilYL+fLcp1wddUWDUKbp7Q2SRj4X7BmAacgEHVUjBkZJKKu/ZIHLzxMyf61N25xAprLHCQ4yR2Vuzs1i8xF9guX6RedjWlknBuM2Cv/XLV86+rTffblvbYEUx4bsYJ35VFSP332Ma4FJ3o265oQhkkuIbpkG4r2RiAsioUMlYV/Og75wMBWIXR9d+fdZqWlz19Mql+H9DB/Ov5ElAaidM8Iutrt7EQf5b3gYesM4KyDddSzGqmpv4ZvXqhE+m6YBS2psllhEfLLZjngLYNooOEnXESRrQJblxaz0516hRc67Na9+rp23/m3z96C4Kh2BDfHus=" # DOCKER_PASS
 
 script:
   - go fmt
-  - GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -installsuffix cgo ganalytics.go
+  - go build -ldflags "-s" -a -installsuffix cgo ganalytics.go
 
 after_success:
   - |

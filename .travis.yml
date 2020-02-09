@@ -16,9 +16,8 @@ before_install:
   - sudo apt-get install -y -qq glide git
 
 script:
-  - glide install
   - go fmt
-  - CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -installsuffix cgo ganalytics.go
+  - GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -installsuffix cgo ganalytics.go
 
 after_success:
   - |

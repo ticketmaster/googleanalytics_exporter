@@ -10,9 +10,8 @@ Obtains Google Analytics RealTime metrics, and presents them to prometheus for s
 
 ## Quick start
 
-1. Ensure [Glide][1] is installed.
 1. Copy your [Google creds][2] json file to ./config/ga_creds.json. The email from the json must be added to the GA project permissions, more on that bellow.
-1. Create yaml configuration file (`./config/config.yaml`):.
+1. Create yaml configuration file (`./config/conf.yaml`):.
     ```yaml
     promport: 9100
     interval: 60
@@ -23,8 +22,7 @@ Obtains Google Analytics RealTime metrics, and presents them to prometheus for s
     ```
 1. Install dependencies, compile and run.
     ```bash
-    glide install
-    go build ganalytics.go
+    GO111MODULE=on go build ganalytics.go
     ./ganalytics
     ```
 

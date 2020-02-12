@@ -75,6 +75,15 @@ func main() {
 
 	// Expose the registered metrics via HTTP.
 	http.Handle("/metrics", promhttp.Handler())
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+			<head><title>Google Analytics Exporter</title></head>
+			<body>
+			<h1>Google Analytics Exporter</h1>
+			<p><a href="/metrics">Metrics</a></p>
+			</body>
+			</html>`))
+	})
 	go http.ListenAndServe(fmt.Sprintf(":%s", config.PromPort), nil)
 
 	for {

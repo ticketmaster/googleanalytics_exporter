@@ -10,10 +10,10 @@ Obtains Google Analytics RealTime metrics, and presents them to prometheus for s
 
 ## Quick start
 
-1. Copy your [Google creds][2] json file to ./config/ga_creds.json. The email from the json must be added to the GA project permissions, more on that bellow. We reccomend you use port 9674 to avoid conflicts as per Prometheus' [default port allocations](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)
+1. Copy your [Google creds][2] json file to ./config/ga_creds.json. The email from the json must be added to the GA project permissions, more on that bellow. We recommend you use port 9674 to avoid conflicts as per Prometheus' [default port allocations](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)
 1. Create yaml configuration file (`./config/conf.yaml`):.
     ```yaml
-    promport: 9674
+    port: 9674
     interval: 60
     viewid: ga:123456789
     metrics:

@@ -4,7 +4,7 @@
 
 # Google Real Time Analytics to Prometheus
 
-Obtains Google Analytics RealTime metrics, and presents them to prometheus for scraping.
+Obtains Google Analytics RealTime metrics, dimensions, and presents them to prometheus for scraping.
 
 ---
 
@@ -12,13 +12,18 @@ Obtains Google Analytics RealTime metrics, and presents them to prometheus for s
 
 1. Copy your [Google creds][2] json file to ./config/ga_creds.json. The email from the json must be added to the GA project permissions, more on that bellow. We recommend you use port 9674 to avoid conflicts as per Prometheus' [default port allocations](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)
 1. Create yaml configuration file (`./config/conf.yaml`):.
+The possible values for metrics and dimensions can be looked up here [Dimensions & Metrics Reference][6].
     ```yaml
     port: 9674
     interval: 60
     viewid: ga:123456789
     metrics:
-    - rt:pageviews
-    - rt:activeUsers
+    - name: rt:pageviews
+    - name: rt:activeUsers
+    - name: rt:totalEvents
+    dimensions:
+    - rt:eventAction
+    - rt:eventCategory
     ```
 1. Install dependencies, compile and run.
     ```bash
@@ -64,3 +69,4 @@ Licensed under the terms of [MIT license][4], see [LICENSE][5] file
 [3]: https://hub.docker.com/_/alpine/
 [4]: https://choosealicense.com/licenses/mit/
 [5]: ./LICENSE
+[6]: https://developers.google.com/analytics/devguides/reporting/realtime/dimsmets

@@ -24,30 +24,36 @@ import (
 var (
 	credsfile = "./config/ga_creds.json"
 	conffile  = "./config/conf.yaml"
-	promGauge = make(map[string]prometheus.Gauge)
+	promGauge = make(map[string]*prometheus.GaugeVec)
 	config    = new(conf)
 )
 
 // conf defines configuration parameters
 type conf struct {
-	Interval int      `yaml:"interval"`
-	Metrics  []string `yaml:"metrics"`
-	ViewID   string   `yaml:"viewid"`
-	PromPort string   `yaml:"port"`
+	Interval int          `yaml:"interval"`
+	Metrics  []metricConf `yaml:"metrics"`
+	ViewID   string       `yaml:"viewid"`
+	PromPort string       `yaml:"port"`
+}
+
+type metricConf struct {
+	Name       string   `yaml:"name"`
+	Dimensions []string `yaml:"dimensions"`
 }
 
 func init() {
 	config.getConf(conffile)
 
-	// All metrics are registered as Prometheus Gauge
+	// All metrics are registered as Prometheus Gauge with the possibility of dimensions (labels)
 	for _, metric := range config.Metrics {
-		promGauge[metric] = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name:        fmt.Sprintf("ga_%s", strings.Replace(metric, ":", "_", 1)),
-			Help:        fmt.Sprintf("Google Analytics %s", metric),
-			ConstLabels: map[string]string{"job": "googleAnalytics"},
-		})
+		promMetricName := getMetricName(metric)
+		promMetricLabelName := getMetricLabels(metric)
+		promGauge[promMetricName] = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: fmt.Sprintf("ga_%s", promMetricName),
+			Help: fmt.Sprintf("Google Analytics %s", metric.Name),
+		}, promMetricLabelName)
 
-		prometheus.MustRegister(promGauge[metric])
+		prometheus.MustRegister(promGauge[promMetricName])
 	}
 }
 
@@ -88,27 +94,32 @@ func main() {
 
 	for {
 		for _, metric := range config.Metrics {
-			// Go routine per mertic
-			go func(metric string) {
+			// Go routine per metric dimension
+			go func(metric metricConf) {
+				metricName := getMetricName(metric)
 				val := getMetric(rts, metric)
-				// Gauge value to float64
-				valf, _ := strconv.ParseFloat(val, 64)
-				promGauge[metric].Set(valf)
+				for _, vald := range val {
+					valf, _ := strconv.ParseFloat(vald[len(vald)-1], 64)
+					promGauge[metricName].WithLabelValues(vald[0:len(metric.Dimensions)]...).Set(valf)
+				}
 			}(metric)
 		}
+
 		time.Sleep(time.Second * time.Duration(config.Interval))
 	}
 }
 
-// getMetric queries GA RealTime API for a specific metric.
-func getMetric(rts *analytics.DataRealtimeService, metric string) string {
-	getc := rts.Get(config.ViewID, metric)
+func getMetric(rts *analytics.DataRealtimeService, metric metricConf) [][]string {
+	getc := rts.Get(config.ViewID, metric.Name)
+	if metric.Dimensions != nil || len(metric.Dimensions) > 0 {
+		getc = getc.Dimensions(strings.Join(metric.Dimensions, ","))
+	}
 	m, err := getc.Do()
 	if err != nil {
 		panic(err)
 	}
 
-	return m.Rows[0][0]
+	return m.Rows
 }
 
 // conf.getConf reads yaml configuration file
@@ -135,4 +146,16 @@ func getCreds(filename string) (r map[string]string) {
 	}
 
 	return r
+}
+
+func getMetricName(dimension metricConf) string {
+	promMetricName := append([]string{dimension.Name}, dimension.Dimensions...)
+	return strings.Replace(strings.Join(promMetricName, "_"), ":", "_", -1)
+}
+func getMetricLabels(dimension metricConf) []string {
+	result := make([]string, len(dimension.Dimensions))
+	for i, item := range dimension.Dimensions {
+		result[i] = strings.Replace(item, ":", "_", -1)
+	}
+	return result
 }

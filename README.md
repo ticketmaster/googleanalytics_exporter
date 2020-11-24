@@ -13,6 +13,7 @@ Obtains Google Analytics RealTime metrics, dimensions, and presents them to prom
 1. Copy your [Google creds][2] json file to ./config/ga_creds.json. The email from the json must be added to the GA project permissions, more on that bellow. We recommend you use port 9674 to avoid conflicts as per Prometheus' [default port allocations](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)
 1. Create yaml configuration file (`./config/conf.yaml`):.
 The possible values for metrics and dimensions can be looked up here [Dimensions & Metrics Reference][6].
+The values for filters and sort can be looked up here [Request Parameters][7]
     ```yaml
     port: 9674
     interval: 60
@@ -21,9 +22,19 @@ The possible values for metrics and dimensions can be looked up here [Dimensions
     - name: rt:pageviews
     - name: rt:activeUsers
     - name: rt:totalEvents
-    dimensions:
-    - rt:eventAction
-    - rt:eventCategory
+      dimensions:
+        - rt:eventAction
+        - rt:eventCategory
+   - name: rt:totalEvents
+      dimensions:
+        - rt:eventAction
+        - rt:eventCategory
+        - rt:eventLabel
+      filters:
+        - rt:eventCategory==fooBar
+      sort:
+        - -rt:totalEvents
+      limit: 100
     ```
 1. Install dependencies, compile and run.
     ```bash
@@ -70,3 +81,4 @@ Licensed under the terms of [MIT license][4], see [LICENSE][5] file
 [4]: https://choosealicense.com/licenses/mit/
 [5]: ./LICENSE
 [6]: https://developers.google.com/analytics/devguides/reporting/realtime/dimsmets
+[7]: https://developers.google.com/analytics/devguides/reporting/realtime/v3/reference/data/realtime/get#parameters

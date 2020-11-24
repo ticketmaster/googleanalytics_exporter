@@ -7,18 +7,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/analytics/v3"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var (
@@ -39,6 +38,9 @@ type conf struct {
 type metricConf struct {
 	Name       string   `yaml:"name"`
 	Dimensions []string `yaml:"dimensions"`
+	Filters    []string `yaml:"filters"`
+	Sort       []string `yaml:"sort"`
+	Limit      string   `yaml:"limit"`
 }
 
 func init() {
@@ -113,6 +115,18 @@ func getMetric(rts *analytics.DataRealtimeService, metric metricConf) [][]string
 	getc := rts.Get(config.ViewID, metric.Name)
 	if metric.Dimensions != nil || len(metric.Dimensions) > 0 {
 		getc = getc.Dimensions(strings.Join(metric.Dimensions, ","))
+	}
+	if metric.Filters != nil || len(metric.Filters) > 0 {
+		getc = getc.Filters(strings.Join(metric.Filters, ","))
+	}
+	if metric.Sort != nil || len(metric.Sort) > 0 {
+		getc = getc.Sort(strings.Join(metric.Sort, ","))
+	}
+	if len(metric.Limit) > 0 {
+		i, err := strconv.ParseInt(metric.Limit, 10, 64)
+		if err == nil {
+			getc = getc.MaxResults(i)
+		}
 	}
 	m, err := getc.Do()
 	if err != nil {

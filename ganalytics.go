@@ -50,12 +50,14 @@ func init() {
 	for _, metric := range config.Metrics {
 		promMetricName := getMetricName(metric)
 		promMetricLabelName := getMetricLabels(metric)
-		promGauge[promMetricName] = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Name: fmt.Sprintf("ga_%s", promMetricName),
-			Help: fmt.Sprintf("Google Analytics %s", metric.Name),
-		}, promMetricLabelName)
+		if promGauge[promMetricName] == nil {
+			promGauge[promMetricName] = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+				Name: fmt.Sprintf("ga_%s", promMetricName),
+				Help: fmt.Sprintf("Google Analytics %s", metric.Name),
+			}, promMetricLabelName)
 
-		prometheus.MustRegister(promGauge[promMetricName])
+			prometheus.MustRegister(promGauge[promMetricName])
+		}
 	}
 }
 
